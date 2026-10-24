@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="sv">
 <head>
@@ -7,9 +6,7 @@
 <title>Körtid</title>
 
 <style>
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -31,10 +28,7 @@ body {
   box-shadow: 0 10px 35px rgba(0,0,0,0.12);
 }
 
-h1 {
-  margin: 0 0 8px;
-  font-size: 30px;
-}
+h1 { margin: 0 0 8px; font-size: 30px; }
 
 .intro {
   color: #666;
@@ -77,14 +71,25 @@ button {
   text-align: center;
 }
 
-#time {
-  font-size: 30px;
+.time {
+  font-size: 28px;
   font-weight: bold;
 }
 
-#detail {
-  margin-top: 7px;
+.detail {
+  margin-top: 6px;
   color: #666;
+}
+
+.comparison {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #ccc;
+}
+
+#difference {
+  font-size: 22px;
+  font-weight: bold;
 }
 </style>
 </head>
@@ -96,68 +101,110 @@ button {
 <h1>🚗 Körtid</h1>
 
 <p class="intro">
-Räkna ut körtiden från hastighet och sträcka.
+Jämför körtiden vid två olika hastigheter.
 </p>
 
 <label>Hastighet (km/h)</label>
-<input id="speed" type="number" placeholder="80">
+<input id="speed1" type="number" placeholder="80">
+
+<label>Alternativ hastighet (km/h)</label>
+<input id="speed2" type="number" placeholder="100">
 
 <label>Sträcka (km)</label>
-<input id="distance" type="number" placeholder="120">
+<input id="distance" type="number" placeholder="100">
 
-<button onclick="calculate()">
-Beräkna körtid
-</button>
+<button onclick="calculate()">Beräkna</button>
 
 <div class="result">
 
-<div id="time">–</div>
+<div class="time" id="time1">–</div>
+<div class="detail" id="detail1">Ordinarie hastighet</div>
 
-<div id="detail">
-Fyll i hastighet och sträcka
+<div class="comparison">
+
+<div class="time" id="time2">–</div>
+<div class="detail" id="detail2">Alternativ hastighet</div>
+
+<br>
+
+<div id="difference">–</div>
+
 </div>
-
 </div>
-
 </div>
 
 <script>
 
+function formatTime(minutes) {
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes - hours * 60;
+
+  if (hours > 0) {
+    return hours + " tim " + mins + " min";
+  }
+
+  return mins + " min";
+}
+
 function calculate() {
 
-  const speed =
-    parseFloat(document.getElementById("speed").value);
+  const speed1 =
+    parseFloat(document.getElementById("speed1").value);
+
+  const speed2 =
+    parseFloat(document.getElementById("speed2").value);
 
   const distance =
     parseFloat(document.getElementById("distance").value);
 
-  if (!speed || speed <= 0 || isNaN(distance)) {
-    document.getElementById("time").innerText =
+  if (speed1 <= 0 || speed2 <= 0 ||
+      distance < 0 ||
+      isNaN(speed1) || isNaN(speed2) ||
+      isNaN(distance)) {
+
+    document.getElementById("difference").innerText =
       "Kontrollera värdena";
+
     return;
   }
 
-  const totalMinutes =
-    Math.round((distance / speed) * 60);
+  const minutes1 =
+    Math.round((distance / speed1) * 60);
 
-  const hours =
-    Math.floor(totalMinutes / 60);
+  const minutes2 =
+    Math.round((distance / speed2) * 60);
 
-  const minutes =
-    totalMinutes - (hours * 60);
+  document.getElementById("time1").innerText =
+    formatTime(minutes1);
 
-  let text = "";
+  document.getElementById("detail1").innerText =
+    distance + " km med " + speed1 + " km/h";
 
-  if (hours > 0)
-    text += hours + " tim ";
+  document.getElementById("time2").innerText =
+    formatTime(minutes2);
 
-  text += minutes + " min";
+  document.getElementById("detail2").innerText =
+    distance + " km med " + speed2 + " km/h";
 
-  document.getElementById("time").innerText =
-    text;
+  const difference = minutes1 - minutes2;
 
-  document.getElementById("detail").innerText =
-    distance + " km med " + speed + " km/h";
+  if (difference > 0) {
+
+    document.getElementById("difference").innerText =
+      "⏱️ Tidsbesparing: " +
+      formatTime(difference);
+
+  } else if (difference < 0) {
+
+    document.getElementById("difference").innerText =
+      "⏱️ Tidsökning: " +
+      formatTime(Math.abs(difference));
+
+  } else {
+
+    document.getElementById("difference").innerText =
+      "Samma körtid";
+  }
 }
 
 </script>
